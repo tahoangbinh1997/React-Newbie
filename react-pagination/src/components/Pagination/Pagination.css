@@ -1,0 +1,13 @@
+table {
+    position: relative;
+    left: 50%;
+    transform: translate(-50%,0);
+}
+table tr {
+    border: 1px solid wheat;
+}
+
+table tr td {
+    border: 1px solid wheat;
+    padding: 20px;
+}
