@@ -147,6 +147,8 @@ function Pagination(props) {
 
     function renderItem () {
         let ranger = pageRanger(currentPage, pageNum)
+
+        // render danh sách đã phân trang
         for (const [index, value] of listPaginate.entries()) {
             item.push(<Item key={index} student={value}/>)
         }
@@ -194,6 +196,8 @@ function Pagination(props) {
         }
 
         end = end > pageNum? pageNum:end
+        console.log('start: ', start)
+        console.log('end: ', end)
         return {start: start, end: end}
     }
 
