@@ -11,3 +11,11 @@ table tr td {
     border: 1px solid wheat;
     padding: 20px;
 }
+
+.center {
+    text-align: center;
+}
+
+.pagination {
+    margin: 20px 0 0 0;
+}

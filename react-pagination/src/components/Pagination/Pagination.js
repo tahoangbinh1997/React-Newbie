@@ -1,10 +1,11 @@
-import React, {useCallback, useEffect, useState} from "react";
-import Item from "./Item/Item";
+import React, {useEffect, useState} from "react"
+import Item from "./Item/Item"
 import './Pagination.css'
+import ListPageNum from "./ListPageNum/ListPageNum"
 
 function Pagination(props) {
 
-    let list = [
+    let [list] = useState([
         {
             id: 1,
             name: 'Tạ Hoàng Bình',
@@ -130,36 +131,70 @@ function Pagination(props) {
             name: 'Nguyễn Hữu Hải',
             class: 'AT12E'
         }
-    ]
+    ])
     let [currentPage, setCurrentPage] = useState(1)
     let [recordPerPage, setRecordPerPage] = useState(3)
     let [listPaginate, setListPaginate] = useState([])
     let pageNum = Math.ceil(list.length / recordPerPage)
+    let listPageNum = []
+    let item = []
 
-    useEffect(renderList, [])
+    useEffect(renderListPagination, [list, currentPage, recordPerPage])
 
-    function renderList() {
+    function renderListPagination() {
         return setListPaginate(list.slice((currentPage - 1) * recordPerPage, currentPage * recordPerPage))
     }
 
-    let item = []
+    function renderItem () {
+        let ranger = pageRanger(currentPage, pageNum)
+        for (const [index, value] of listPaginate.entries()) {
+            item.push(<Item key={index} student={value}/>)
+        }
 
-    for (const [index, value] of listPaginate.entries()) {
-        item.push(<Item key={index} student={value}/>)
+        // render số trang trong pagination
+        for (let i = ranger.start; i <= ranger.end; i++) {
+            listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
+        }
     }
+    renderItem()
 
     function prevPage() {
-        if (currentPage > 1) {
+        if (currentPage >= 1) {
             setCurrentPage(currentPage - 1)
         }
-        renderList()
     }
 
     function nextPage() {
-        if (currentPage < pageNum) {
+        if (currentPage <= pageNum) {
             setCurrentPage(currentPage + 1)
         }
-        renderList()
+    }
+
+    function onChangeRecord(event) {
+        let pageNumber = Number(event.target.value)
+        setCurrentPage(pageNumber)
+    }
+
+    function changeRecord(event) {
+        let recordNumber = Number(event.target.value)
+        setRecordPerPage(recordNumber)
+        setCurrentPage(1)
+    }
+
+    function pageRanger(currentPage, pageNum) {
+        let start = currentPage - 2
+        let end = currentPage + 2
+        if (end > pageNum) {
+            start -= (end-pageNum)
+            end = pageNum
+        }
+        if (start <= 0) {
+            end += ((start-1)*(-1))
+            start = 1
+        }
+
+        end = end > pageNum? pageNum:end
+        return {start: start, end: end}
     }
 
     return (
@@ -183,9 +218,18 @@ function Pagination(props) {
                     </tr>
                 </tfoot>
             </table>
-            <div>
-                <button disabled={currentPage === 1} onClick={prevPage}>Prev</button>
-                <button disabled={currentPage === pageNum} onClick={nextPage}>Next</button>
+            <div className={'center'}>
+                <div className={'pagination'}>
+                    <button disabled={currentPage === 1} onClick={prevPage}>Prev</button>
+                    {listPageNum}
+                    <button disabled={currentPage === pageNum} onClick={nextPage}>Next</button>
+                </div>
+                <select name="recordList" id="record_list" onChange={changeRecord}>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
             </div>
         </div>
     )
