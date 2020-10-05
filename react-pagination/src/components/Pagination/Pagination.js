@@ -1,9 +1,7 @@
-import React, {useCallback, useMemo, useState} from "react"
+import React, {useCallback, useEffect, useMemo, useState} from "react"
 import Item from "./Item/Item"
 import './Pagination.css'
 import ListPageNum from "./ListPageNum/ListPageNum"
-
-export default Pagination
 
 function Pagination(props) {
 
@@ -17,51 +15,11 @@ function Pagination(props) {
     let tableHeader = []
     let recordChoices = []
 
-    const renderListPagination = () => {
+    useMemo(renderListPagination, [list, currentPage, recordPerPage])
+
+    function renderListPagination() {
         setListPaginate(prevState => list.slice((currentPage - 1) * recordPerPage, currentPage * recordPerPage))
     }
-
-    const onChangeRecord = useCallback((event) => {
-        let pageNumber = Number(event.target.value)
-        setCurrentPage(pageNumber)
-    }, [currentPage])
-
-    const prevPage = useCallback(() => {
-        if (currentPage >= 1) {
-            setCurrentPage(currentPage - 1)
-        }
-    }, [currentPage])
-
-    const nextPage = useCallback(() => {
-        if (currentPage <= pageNum) {
-            setCurrentPage(currentPage + 1)
-        }
-    }, [currentPage])
-
-    const changeRecord = useCallback((event) => {
-        let recordNumber = Number(event.target.value)
-        setRecordPerPage(recordNumber)
-        setCurrentPage(1)
-    }, [currentPage])
-
-    const pageRanger = (currentPage, pageNum) => {
-        let start = currentPage - 1
-        let end = currentPage + 1
-        if (end > pageNum) {
-            start -= (end - pageNum)
-            end = pageNum
-        }
-        if (start <= 0) {
-            end += ((start - 1) * (-1))
-            start = 1
-        }
-
-        end = end > pageNum ? pageNum : end
-        return {start: start, end: end}
-    }
-
-    //dùng useMemo khi nào prop list, currentPage, recordPerPage thay đổi thì hàm renderListPagination mới được chạy
-    useMemo(renderListPagination, [list, currentPage, recordPerPage])
 
     const renderItem = () => {
         let ranger = pageRanger(currentPage, pageNum)
@@ -75,7 +33,7 @@ function Pagination(props) {
         }
 
         for (const [index, value] of thead.entries()) {
-            tableHeader.push(<td key={index}>{value.charAt(0).toUpperCase() + value.slice(1)}</td>)
+            tableHeader.push(<td key={index}>{value.charAt(0).toUpperCase()+value.slice(1)}</td>)
         }
 
         for (const [index, value] of choices.entries()) {
@@ -86,27 +44,22 @@ function Pagination(props) {
         if (pageNum >= 6) {
             if (currentPage < pageNum - 2) {
                 for (let i = ranger.start; i <= ranger.end; i++) {
-                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage}
-                                                  numClick={onChangeRecord}/>)
+                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
                 }
 
-                listPageNum.push(<p key={pageNum - 1}>...</p>)
+                listPageNum.push(<p key={pageNum-1}>...</p>)
 
-                listPageNum.push(<ListPageNum key={pageNum} pageNum={pageNum} currentPage={currentPage}
-                                              numClick={onChangeRecord}/>)
+                listPageNum.push(<ListPageNum key={pageNum} pageNum={pageNum} currentPage={currentPage} numClick={onChangeRecord}/>)
 
             } else if (currentPage < pageNum - 1) {
                 for (let i = ranger.start; i <= ranger.end; i++) {
-                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage}
-                                                  numClick={onChangeRecord}/>)
+                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
                 }
 
-                listPageNum.push(<ListPageNum key={pageNum} pageNum={pageNum} currentPage={currentPage}
-                                              numClick={onChangeRecord}/>)
+                listPageNum.push(<ListPageNum key={pageNum} pageNum={pageNum} currentPage={currentPage} numClick={onChangeRecord}/>)
             } else {
-                for (let i = ranger.start - 1; i <= ranger.end; i++) {
-                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage}
-                                                  numClick={onChangeRecord}/>)
+                for (let i = ranger.start-1; i <= ranger.end; i++) {
+                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
                 }
             }
         } else {
@@ -115,25 +68,62 @@ function Pagination(props) {
             }
         }
     }
-
-    //dùng useMemo khi nào prop listPaginate thay đổi thì hàm renderItem mới được chạy
     useMemo(renderItem, [listPaginate])
+
+    function prevPage() {
+        if (currentPage >= 1) {
+            setCurrentPage(currentPage - 1)
+        }
+    }
+
+    function nextPage() {
+        if (currentPage <= pageNum) {
+            setCurrentPage(currentPage + 1)
+        }
+    }
+
+    function onChangeRecord(event) {
+        let pageNumber = Number(event.target.value)
+        setCurrentPage(pageNumber)
+    }
+
+    function changeRecord(event) {
+        let recordNumber = Number(event.target.value)
+        setRecordPerPage(recordNumber)
+        setCurrentPage(1)
+    }
+
+    function pageRanger(currentPage, pageNum) {
+        let start = currentPage - 1
+        let end = currentPage + 1
+        if (end > pageNum) {
+            start -= (end-pageNum)
+            end = pageNum
+        }
+        if (start <= 0) {
+            end += ((start-1)*(-1))
+            start = 1
+        }
+
+        end = end > pageNum? pageNum:end
+        return {start: start, end: end}
+    }
 
     return (
         <div>
             <table>
                 <thead>
-                <tr>
-                    {tableHeader}
-                </tr>
+                    <tr>
+                        {tableHeader}
+                    </tr>
                 </thead>
                 <tbody>
-                {item}
+                    {item}
                 </tbody>
                 <tfoot>
-                <tr>
-                    {tableHeader}
-                </tr>
+                    <tr>
+                        {tableHeader}
+                    </tr>
                 </tfoot>
             </table>
             <div className={'center'}>
@@ -161,3 +151,5 @@ function Pagination(props) {
         </div>
     )
 }
+
+export default Pagination
