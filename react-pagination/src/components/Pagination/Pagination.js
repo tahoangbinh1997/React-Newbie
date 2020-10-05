@@ -1,164 +1,74 @@
-import React, {useEffect, useState} from "react"
+import React, {useCallback, useEffect, useMemo, useState} from "react"
 import Item from "./Item/Item"
 import './Pagination.css'
 import ListPageNum from "./ListPageNum/ListPageNum"
 
 function Pagination(props) {
 
-    let [list] = useState([
-        {
-            id: 1,
-            name: 'Tạ Hoàng Bình',
-            class: 'AT12E'
-        },
-        {
-            id: 2,
-            name: 'Phạm Tiến Dũng',
-            class: 'AT12E'
-        },
-        {
-            id: 3,
-            name: 'Vũ Anh Quân',
-            class: 'AT12E'
-        },
-        {
-            id: 4,
-            name: 'Phạm Huy Công',
-            class: 'AT12E'
-        },
-        {
-            id: 5,
-            name: 'Nguyễn Hữu Hải',
-            class: 'AT12E'
-        },
-        {
-            id: 6,
-            name: 'Tạ Hoàng Bình',
-            class: 'AT12E'
-        },
-        {
-            id: 7,
-            name: 'Phạm Tiến Dũng',
-            class: 'AT12E'
-        },
-        {
-            id: 8,
-            name: 'Vũ Anh Quân',
-            class: 'AT12E'
-        },
-        {
-            id: 9,
-            name: 'Phạm Huy Công',
-            class: 'AT12E'
-        },
-        {
-            id: 10,
-            name: 'Nguyễn Hữu Hải',
-            class: 'AT12E'
-        },
-        {
-            id: 11,
-            name: 'Tạ Hoàng Bình',
-            class: 'AT12E'
-        },
-        {
-            id: 12,
-            name: 'Phạm Tiến Dũng',
-            class: 'AT12E'
-        },
-        {
-            id: 13,
-            name: 'Vũ Anh Quân',
-            class: 'AT12E'
-        },
-        {
-            id: 14,
-            name: 'Phạm Huy Công',
-            class: 'AT12E'
-        },
-        {
-            id: 15,
-            name: 'Nguyễn Hữu Hải',
-            class: 'AT12E'
-        },
-        {
-            id: 16,
-            name: 'Tạ Hoàng Bình',
-            class: 'AT12E'
-        },
-        {
-            id: 17,
-            name: 'Phạm Tiến Dũng',
-            class: 'AT12E'
-        },
-        {
-            id: 18,
-            name: 'Vũ Anh Quân',
-            class: 'AT12E'
-        },
-        {
-            id: 19,
-            name: 'Phạm Huy Công',
-            class: 'AT12E'
-        },
-        {
-            id: 20,
-            name: 'Nguyễn Hữu Hải',
-            class: 'AT12E'
-        },
-        {
-            id: 21,
-            name: 'Tạ Hoàng Bình',
-            class: 'AT12E'
-        },
-        {
-            id: 22,
-            name: 'Phạm Tiến Dũng',
-            class: 'AT12E'
-        },
-        {
-            id: 23,
-            name: 'Vũ Anh Quân',
-            class: 'AT12E'
-        },
-        {
-            id: 24,
-            name: 'Phạm Huy Công',
-            class: 'AT12E'
-        },
-        {
-            id: 25,
-            name: 'Nguyễn Hữu Hải',
-            class: 'AT12E'
-        }
-    ])
-    let [currentPage, setCurrentPage] = useState(1)
-    let [recordPerPage, setRecordPerPage] = useState(3)
+    let [list] = useState(props.options.list)
+    let [currentPage, setCurrentPage] = useState(props.options.currentPage)
+    let [recordPerPage, setRecordPerPage] = useState(props.options.recordPerPage)
     let [listPaginate, setListPaginate] = useState([])
     let pageNum = Math.ceil(list.length / recordPerPage)
     let listPageNum = []
     let item = []
+    let tableHeader = []
+    let recordChoices = []
 
-    useEffect(renderListPagination, [list, currentPage, recordPerPage])
+    useMemo(renderListPagination, [list, currentPage, recordPerPage])
 
     function renderListPagination() {
-        return setListPaginate(list.slice((currentPage - 1) * recordPerPage, currentPage * recordPerPage))
+        setListPaginate(prevState => list.slice((currentPage - 1) * recordPerPage, currentPage * recordPerPage))
     }
 
-    function renderItem () {
+    const renderItem = () => {
         let ranger = pageRanger(currentPage, pageNum)
+        let thead = listPaginate[0] ? Object.getOwnPropertyNames(listPaginate[0]) : []
+        let {isShow, choices} = props.options.recordList
+        console.log(currentPage)
 
         // render danh sách đã phân trang
         for (const [index, value] of listPaginate.entries()) {
             item.push(<Item key={index} student={value}/>)
         }
 
+        for (const [index, value] of thead.entries()) {
+            tableHeader.push(<td key={index}>{value.charAt(0).toUpperCase()+value.slice(1)}</td>)
+        }
+
+        for (const [index, value] of choices.entries()) {
+            recordChoices.push(<option value={value.value} key={index}>{value.value}</option>)
+        }
+
         // render số trang trong pagination
-        for (let i = ranger.start; i <= ranger.end; i++) {
-            listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
+        if (pageNum >= 6) {
+            if (currentPage < pageNum - 2) {
+                for (let i = ranger.start; i <= ranger.end; i++) {
+                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
+                }
+
+                listPageNum.push(<p key={pageNum-1}>...</p>)
+
+                listPageNum.push(<ListPageNum key={pageNum} pageNum={pageNum} currentPage={currentPage} numClick={onChangeRecord}/>)
+
+            } else if (currentPage < pageNum - 1) {
+                for (let i = ranger.start; i <= ranger.end; i++) {
+                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
+                }
+
+                listPageNum.push(<ListPageNum key={pageNum} pageNum={pageNum} currentPage={currentPage} numClick={onChangeRecord}/>)
+            } else {
+                for (let i = ranger.start-1; i <= ranger.end; i++) {
+                    listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
+                }
+            }
+        } else {
+            for (let i = ranger.start; i <= ranger.end; i++) {
+                listPageNum.push(<ListPageNum key={i} pageNum={i} currentPage={currentPage} numClick={onChangeRecord}/>)
+            }
         }
     }
-    renderItem()
+    useMemo(renderItem, [listPaginate])
 
     function prevPage() {
         if (currentPage >= 1) {
@@ -184,8 +94,8 @@ function Pagination(props) {
     }
 
     function pageRanger(currentPage, pageNum) {
-        let start = currentPage - 2
-        let end = currentPage + 2
+        let start = currentPage - 1
+        let end = currentPage + 1
         if (end > pageNum) {
             start -= (end-pageNum)
             end = pageNum
@@ -196,8 +106,6 @@ function Pagination(props) {
         }
 
         end = end > pageNum? pageNum:end
-        console.log('start: ', start)
-        console.log('end: ', end)
         return {start: start, end: end}
     }
 
@@ -206,9 +114,7 @@ function Pagination(props) {
             <table>
                 <thead>
                     <tr>
-                        <td>Id</td>
-                        <td>Name</td>
-                        <td>Class</td>
+                        {tableHeader}
                     </tr>
                 </thead>
                 <tbody>
@@ -216,24 +122,31 @@ function Pagination(props) {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td>Id</td>
-                        <td>Name</td>
-                        <td>Class</td>
+                        {tableHeader}
                     </tr>
                 </tfoot>
             </table>
             <div className={'center'}>
-                <div className={'pagination'}>
-                    <button disabled={currentPage === 1} onClick={prevPage}>Prev</button>
-                    {listPageNum}
-                    <button disabled={currentPage === pageNum} onClick={nextPage}>Next</button>
-                </div>
-                <select name="recordList" id="record_list" onChange={changeRecord}>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="15">15</option>
-                    <option value="20">20</option>
-                </select>
+                {props.options.arrowPagination
+                    ?
+                    <div className={'pagination'}>
+                        <button disabled={currentPage === 1} onClick={prevPage}>Prev</button>
+                        {listPageNum}
+                        <button disabled={currentPage === pageNum} onClick={nextPage}>Next</button>
+                    </div>
+                    :
+                    <div className={'pagination'}>
+                        {listPageNum}
+                    </div>
+                }
+                {props.options.recordList && props.options.recordList.isShow
+                    ?
+                    <select name="recordList" id="record_list" onChange={changeRecord}>
+                        {recordChoices}
+                    </select>
+                    :
+                    ''
+                }
             </div>
         </div>
     )

@@ -2,13 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import Pagination from "./components/Pagination/Pagination";
-import Card from "./components/Card/Card";
+import App from "./App";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Pagination />
-    <Card />
+    <App/>
   </React.StrictMode>,
   document.getElementById('root')
 );
